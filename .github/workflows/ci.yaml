@@ -1,0 +1,96 @@
+name: AWS EKS Istio Lab - CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Python Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            src/orders-api/requirements.txt
+            src/orders-api/requirements-dev.txt
+            src/orders-worker/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/orders-api/requirements.txt
+          pip install -r src/orders-api/requirements-dev.txt
+          pip install -r src/orders-worker/requirements.txt
+          pip install pyyaml
+
+      - name: Run unit tests
+        run: |
+          PYTHONPATH=src/orders-api:src/orders-worker/app pytest -v tests/
+
+  terraform:
+    name: Terraform Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format
+        run: terraform -chdir=terraform/persistent fmt -check -recursive
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/persistent init -backend=false
+
+      - name: Terraform Validate
+        run: terraform -chdir=terraform/persistent validate
+
+  yaml:
+    name: Kubernetes YAML Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install YAML validator
+        run: pip install pyyaml
+
+      - name: Validate YAML files
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          files = list(Path("kubernetes").rglob("*.yaml"))
+
+          if not files:
+              raise SystemExit("No Kubernetes YAML files found")
+
+          for file in files:
+              with file.open() as stream:
+                  list(yaml.safe_load_all(stream))
+              print(f"OK: {file}")
+          PY
