@@ -94,3 +94,26 @@ jobs:
                   list(yaml.safe_load_all(stream))
               print(f"OK: {file}")
           PY
+
+  docker-build:
+    name: Docker Image Build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Build Orders API image
+        run: |
+          docker build \
+            -t aws-eks-istio-lab-orders-api:${{ github.sha }} \
+            ./src/orders-api
+
+      - name: Build Orders Worker image
+        run: |
+          docker build \
+            -t aws-eks-istio-lab-orders-worker:${{ github.sha }} \
+            ./src/orders-worker
+
+      - name: List generated images
+        run: docker images aws-eks-istio-lab-orders-*
