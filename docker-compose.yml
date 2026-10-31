@@ -1,0 +1,36 @@
+services:
+  orders-api:
+    container_name: orders-api
+    build:
+      context: ./src/orders-api
+    ports:
+      - "8000:8000"
+    environment:
+      AWS_DEFAULT_REGION: us-east-1
+      SQS_QUEUE_URL: ""
+      DYNAMODB_TABLE: ""
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live')"
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  orders-worker:
+    container_name: orders-worker
+    profiles:
+      - aws
+    build:
+      context: ./src/orders-worker
+    environment:
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_PROFILE: serverless-lab-static
+      SQS_QUEUE_URL: ${SQS_QUEUE_URL:-}
+      DYNAMODB_TABLE: ${DYNAMODB_TABLE:-aws-serverless-lab-dev-orders-data}
+    volumes:
+      - ${HOME}/.aws:/root/.aws:ro
+    restart: unless-stopped
