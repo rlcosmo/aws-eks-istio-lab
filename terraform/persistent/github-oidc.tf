@@ -42,7 +42,7 @@ data "aws_iam_policy_document" "github_actions_trust" {
       variable = "token.actions.githubusercontent.com:sub"
 
       values = [
-        "repo:rlcosmo/aws-eks-istio-lab:ref:refs/heads/main"
+        "repo:rlcosmo@124368446/aws-eks-istio-lab@1441283688:ref:refs/heads/main"
       ]
     }
   }
@@ -73,6 +73,7 @@ data "aws_iam_policy_document" "github_actions_ecr" {
 
     actions = [
       "ecr:BatchCheckLayerAvailability",
+      "ecr:BatchGetImage",
       "ecr:CompleteLayerUpload",
       "ecr:InitiateLayerUpload",
       "ecr:PutImage",
