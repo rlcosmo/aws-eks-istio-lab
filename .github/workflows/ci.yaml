@@ -117,3 +117,53 @@ jobs:
 
       - name: List generated images
         run: docker images aws-eks-istio-lab-orders-*
+
+  publish-ecr:
+    name: Publish Images to Amazon ECR
+    runs-on: ubuntu-24.04
+    needs:
+      - tests
+      - terraform
+      - yaml
+      - docker-build
+
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      vars.AWS_ROLE_TO_ASSUME != '' &&
+      vars.AWS_REGION != ''
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Orders API
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src/orders-api
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/aws-eks-istio-lab-dev-orders-api:${{ github.sha }}
+
+      - name: Build and push Orders Worker
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src/orders-worker
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/aws-eks-istio-lab-dev-orders-worker:${{ github.sha }}

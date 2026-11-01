@@ -41,3 +41,15 @@ output "orders_api_iam_role_arn" {
 output "orders_worker_iam_role_arn" {
   value = aws_iam_role.orders_worker.arn
 }
+
+output "orders_api_ecr_repository_url" {
+  value = aws_ecr_repository.orders_api.repository_url
+}
+
+output "orders_worker_ecr_repository_url" {
+  value = aws_ecr_repository.orders_worker.repository_url
+}
+
+output "github_actions_ecr_role_arn" {
+  value = aws_iam_role.github_actions_ecr.arn
+}

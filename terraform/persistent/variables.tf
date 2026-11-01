@@ -13,7 +13,7 @@ variable "environment" {
 variable "project" {
   description = "Project name"
   type        = string
-  default     = "aws-serverless-lab"
+  default     = "aws-eks-istio-lab"
 }
 
 variable "eks_cluster_name" {
