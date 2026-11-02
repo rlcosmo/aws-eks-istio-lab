@@ -1,0 +1,95 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: squad-platform-operator
+  namespace: external-integration
+rules:
+  - apiGroups: ["", "apps", "batch"]
+    resources:
+      - pods
+      - pods/log
+      - deployments
+      - replicasets
+      - services
+      - configmaps
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: squad-platform-binding
+  namespace: external-integration
+subjects:
+  - kind: Group
+    name: squad-platform
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: squad-platform-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: squad-platform-operator
+  namespace: platform-system
+rules:
+  - apiGroups: ["", "apps", "batch"]
+    resources:
+      - pods
+      - pods/log
+      - deployments
+      - replicasets
+      - services
+      - configmaps
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: squad-platform-binding
+  namespace: platform-system
+subjects:
+  - kind: Group
+    name: squad-platform
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: squad-platform-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: squad-platform-operator
+  namespace: observability
+rules:
+  - apiGroups: ["", "apps", "batch"]
+    resources:
+      - pods
+      - pods/log
+      - deployments
+      - replicasets
+      - services
+      - configmaps
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: squad-platform-binding
+  namespace: observability
+subjects:
+  - kind: Group
+    name: squad-platform
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: squad-platform-operator
+  apiGroup: rbac.authorization.k8s.io
