@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import os
 import json
 import time
@@ -48,7 +49,11 @@ def process_message(message):
 
     try:
         table.put_item(
-            Item=order,
+            Item={
+                **order,
+                "status": "COMPLETED",
+                "processed_at": datetime.now(timezone.utc).isoformat()
+            },
             ConditionExpression="attribute_not_exists(order_id)"
         )
 
