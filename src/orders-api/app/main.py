@@ -134,3 +134,10 @@ def get_order(order_id: str):
     except Exception:
         logger.exception("order_query_failed order_id=%s", order_id)
         raise HTTPException(503, "Unable to query order")
+
+@app.get("/version")
+def get_version():
+    return {
+        "service": "orders-api",
+        "version": "1.0.1"
+    }
