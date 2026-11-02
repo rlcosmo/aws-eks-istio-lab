@@ -21,3 +21,7 @@ crash.log
 .vscode/
 .idea/
 .DS_Store
+**/.terraform/*
+**/terraform.tfstate*
+**/terraform.tfvars
+**/*.tfplan
